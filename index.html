@@ -1,1 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>FIERA — Controlled Ferocity</title>
+  <meta
+    name="description"
+    content="FIERA is a competitive Fortnite organization launching in 2027."
+  >
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    :root {
+      --black: #090909;
+      --red: #c8202f;
+      --white: #f3f0e8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--black);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--black);
+      color: var(--white);
+      font-family: "Inter", sans-serif;
+    }
+
+    body.menu-open {
+      overflow: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      color: inherit;
+      font: inherit;
+    }
+
+    .hero {
+      position: relative;
+      width: 100%;
+      min-height: 100svh;
+      height: 100svh;
+      overflow: hidden;
+      isolation: isolate;
+      background: var(--black);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      z-index: 7;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(9, 9, 9, 0.34),
+          transparent 24%,
+          transparent 76%,
+          rgba(9, 9, 9, 0.08)
+        );
+    }
+
+    .red-plane {
+      position: absolute;
+      z-index: -2;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 43%;
+      background: var(--red);
+      clip-path: polygon(
+        30% 0,
+        100% 0,
+        100% 100%,
+        0 100%,
+        17% 57%
+      );
+      transform-origin: right center;
+      animation: plane-in 0.75s cubic-bezier(0.22, 0.8, 0.2, 1) both;
+    }
+
+    .navigation {
+      position: absolute;
+      z-index: 30;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 102px;
+      display: flex;
+      align-items: center;
+      padding: 0 5.5vw;
+    }
+
+    .brand {
+      font-family: "Sora", sans-serif;
+      font-size: 1.18rem;
+      font-weight: 800;
+      letter-spacing: -0.06em;
+    }
+
+    .desktop-navigation {
+      display: flex;
+      gap: clamp(1.3rem, 2.5vw, 3.4rem);
+      margin-left: auto;
+    }
+
+    .desktop-navigation a {
+      position: relative;
+      padding: 0.75rem 0;
+      font-size: 0.67rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      opacity: 0.7;
+      transition: opacity 180ms ease;
+    }
+
+    .desktop-navigation a:hover,
+    .desktop-navigation a:focus-visible {
+      opacity: 1;
+    }
+
+    .desktop-navigation a.active {
+      opacity: 1;
+    }
+
+    .desktop-navigation a.active::after {
+      content: "";
+      position: absolute;
+      bottom: 4px;
+      left: 0;
+      width: 17px;
+      height: 2px;
+      background: var(--red);
+    }
+
+    .menu-button {
+      display: none;
+      width: 34px;
+      height: 34px;
+      margin-left: auto;
+      padding: 6px 2px;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .menu-button span {
+      display: block;
+      height: 2px;
+      margin: 6px 0;
+      background: var(--white);
+      transition:
+        width 200ms ease,
+        transform 200ms ease;
+    }
+
+    .menu-button span:first-child {
+      width: 26px;
+    }
+
+    .menu-button span:last-child {
+      width: 18px;
+      margin-left: 8px;
+    }
+
+    .menu-button.active span:first-child {
+      width: 26px;
+      transform: translateY(4px) rotate(45deg);
+    }
+
+    .menu-button.active span:last-child {
+      width: 26px;
+      margin-left: 0;
+      transform: translateY(-4px) rotate(-45deg);
+    }
+
+    .mobile-navigation {
+      position: fixed;
+      z-index: 25;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.7rem;
+      background: var(--black);
+    }
+
+    .mobile-navigation.active {
+      display: flex;
+    }
+
+    .mobile-navigation a {
+      font-family: "Sora", sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .metadata {
+      position: absolute;
+      z-index: 10;
+      top: 16.7%;
+      left: 8.8%;
+      display: grid;
+      gap: 0.52rem;
+      padding-left: 1.2rem;
+      border-left: 2px solid var(--red);
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      animation: detail-in 0.55s 0.55s both;
+    }
+
+    .background-word {
+      position: absolute;
+      z-index: -1;
+      top: 31%;
+      left: -2vw;
+      color: var(--white);
+      font-family: "Sora", sans-serif;
+      font-size: clamp(9rem, 22.5vw, 27rem);
+      font-weight: 800;
+      line-height: 0.7;
+      letter-spacing: -0.095em;
+      white-space: nowrap;
+      animation: word-in 0.75s 0.18s both;
+    }
+
+    .player {
+      position: absolute;
+      z-index: 3;
+      bottom: -1px;
+      left: 44%;
+      width: min(62vw, 930px);
+      height: 92%;
+      transform: translateX(-37%);
+      animation:
+        player-in 0.75s 0.32s cubic-bezier(0.22, 0.8, 0.2, 1) both;
+    }
+
+    .player img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center bottom;
+      filter: drop-shadow(0 22px 30px rgba(0, 0, 0, 0.2));
+    }
+
+    .headline {
+      position: absolute;
+      z-index: 10;
+      bottom: 12.7%;
+      left: 8.8%;
+      animation: detail-in 0.6s 0.65s both;
+    }
+
+    .headline h1 {
+      margin: 0;
+      font-family: "Sora", sans-serif;
+      font-size: clamp(2.75rem, 5.15vw, 6rem);
+      font-weight: 800;
+      line-height: 0.89;
+      letter-spacing: -0.065em;
+    }
+
+    .headline h1 span {
+      color: var(--red);
+    }
+
+    .headline p {
+      margin: 1.25rem 0 0;
+      color: rgba(243, 240, 232, 0.7);
+      font-size: clamp(0.72rem, 0.85vw, 0.95rem);
+      letter-spacing: 0.015em;
+    }
+
+    .launch {
+      position: absolute;
+      z-index: 10;
+      top: 39%;
+      right: 5.6vw;
+      width: clamp(180px, 17vw, 275px);
+      color: var(--black);
+      animation: detail-in 0.55s 0.82s both;
+    }
+
+    .launch-label {
+      margin: 0 0 0.75rem;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+    }
+
+    .launch time {
+      display: block;
+      font-family: "Sora", sans-serif;
+      font-size: clamp(2.05rem, 3.4vw, 4.25rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.07em;
+    }
+
+    .launch-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 2.2rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(9, 9, 9, 0.5);
+      font-size: 0.67rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+    }
+
+    .launch-link span {
+      font-size: 1.15rem;
+      transition: transform 180ms ease;
+    }
+
+    .launch-link:hover span,
+    .launch-link:focus-visible span {
+      transform: translateX(5px);
+    }
+
+    .hashtag {
+      position: absolute;
+      z-index: 10;
+      top: 50%;
+      left: 1.8vw;
+      color: rgba(243, 240, 232, 0.7);
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      writing-mode: vertical-rl;
+      transform: translateY(-50%) rotate(180deg);
+      animation: detail-in 0.5s 0.7s both;
+    }
+
+    .hashtag::before {
+      content: "";
+      display: inline-block;
+      width: 2px;
+      height: 25px;
+      margin-bottom: 10px;
+      background: var(--red);
+    }
+
+    .social-links {
+      position: absolute;
+      z-index: 10;
+      bottom: 4.3%;
+      left: 8.8%;
+      display: flex;
+      align-items: center;
+      font-size: 0.55rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      animation: detail-in 0.5s 0.74s both;
+    }
+
+    .social-links a {
+      opacity: 0.55;
+      transition: opacity 180ms ease;
+    }
+
+    .social-links a:hover,
+    .social-links a:focus-visible {
+      opacity: 1;
+    }
+
+    .social-links a:not(:last-child)::after {
+      content: "";
+      display: inline-block;
+      width: 1px;
+      height: 8px;
+      margin: 0 0.9rem;
+      background: rgba(243, 240, 232, 0.25);
+    }
+
+    @keyframes plane-in {
+      from {
+        transform: translateX(100%);
+      }
+
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes word-in {
+      from {
+        clip-path: inset(0 100% 0 0);
+        transform: translateX(-2%);
+      }
+
+      to {
+        clip-path: inset(0);
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes player-in {
+      from {
+        opacity: 0;
+        transform: translateX(-34%) translateY(22px) scale(0.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-37%) translateY(0) scale(1);
+      }
+    }
+
+    @keyframes detail-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .navigation {
+        height: 78px;
+        padding: 0 6vw;
+      }
+
+      .desktop-navigation {
+        display: none;
+      }
+
+      .menu-button {
+        position: relative;
+        z-index: 30;
+        display: block;
+      }
+
+      .red-plane {
+        width: 59%;
+        clip-path: polygon(
+          32% 0,
+          100% 0,
+          100% 100%,
+          0 100%,
+          16% 54%
+        );
+      }
+
+      .metadata {
+        top: 12.5%;
+        left: 6vw;
+        gap: 0.35rem;
+        font-size: 0.52rem;
+      }
+
+      .background-word {
+        top: 27%;
+        left: -7%;
+        font-size: 33vw;
+      }
+
+      .player {
+        left: 55%;
+        width: 104vw;
+        height: 75%;
+        transform: translateX(-50%);
+      }
+
+      .headline {
+        bottom: 14.5%;
+        left: 6vw;
+      }
+
+      .headline h1 {
+        font-size: clamp(2.8rem, 13vw, 4.3rem);
+      }
+
+      .headline p {
+        max-width: 230px;
+        margin-top: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .launch {
+        top: 22%;
+        right: 5vw;
+        width: 130px;
+        text-align: right;
+      }
+
+      .launch-label {
+        margin-bottom: 0.4rem;
+      }
+
+      .launch time {
+        font-size: 1.9rem;
+      }
+
+      .launch-link {
+        margin-top: 0.85rem;
+        padding-top: 0.5rem;
+        font-size: 0.52rem;
+      }
+
+      .social-links {
+        right: 6vw;
+        bottom: 3.5%;
+        left: 6vw;
+        justify-content: space-between;
+        font-size: 0.46rem;
+      }
+
+      .social-links a:not(:last-child)::after {
+        display: none;
+      }
+
+      .hashtag {
+        display: none;
+      }
+    }
+
+    @media (max-height: 680px) and (min-width: 761px) {
+      .headline {
+        bottom: 11%;
+      }
+
+      .social-links {
+        bottom: 3%;
+      }
+
+      .background-word {
+        top: 30%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="hero">
+    <div class="red-plane" aria-hidden="true"></div>
+
+    <header class="navigation">
+      <a class="brand" href="#" aria-label="FIERA home">
+        FIERA
+      </a>
+
+      <nav class="desktop-navigation" aria-label="Primary navigation">
+        <a class="active" href="#">HOME</a>
+        <a href="#roster">ROSTER</a>
+        <a href="#news">NEWS</a>
+        <a href="#about">ABOUT</a>
+        <a href="#partners">PARTNERS</a>
+        <a href="#contact">CONTACT</a>
+      </nav>
+
+      <button
+        class="menu-button"
+        type="button"
+        aria-label="Open navigation"
+        aria-expanded="false"
+        aria-controls="mobile-navigation"
+      >
+        <span></span>
+        <span></span>
+      </button>
+    </header>
+
+    <nav
+      class="mobile-navigation"
+      id="mobile-navigation"
+      aria-label="Mobile navigation"
+    >
+      <a href="#">HOME</a>
+      <a href="#roster">ROSTER</a>
+      <a href="#news">NEWS</a>
+      <a href="#about">ABOUT</a>
+      <a href="#partners">PARTNERS</a>
+      <a href="#contact">CONTACT</a>
+    </nav>
+
+    <aside class="hashtag" aria-label="Campaign hashtag">
+      #ReleaseTheBeast
+    </aside>
+
+    <section class="metadata" aria-label="Organization information">
+      <span>EST. 2027</span>
+      <span>NORTH AMERICA</span>
+      <span>FORTNITE</span>
+    </section>
+
+    <div class="background-word" aria-hidden="true">
+      FIERA
+    </div>
+
+    <div class="player">
+      <img
+        src="fiera_hero_image.png"
+        alt="FIERA player"
+        fetchpriority="high"
+      >
+    </div>
+
+    <section class="headline">
+      <h1>
+        CONTROLLED<br>
+        FEROCITY<span>.</span>
+      </h1>
+
+      <p>A competitive Fortnite organization launching in 2027.</p>
+    </section>
+
+    <section class="launch" aria-label="Launch date">
+      <p class="launch-label">LAUNCH</p>
+
+      <time datetime="2027-01-01">
+        01.01.27
+      </time>
+
+      <a class="launch-link" href="#about">
+        EXPLORE FIERA
+        <span aria-hidden="true">→</span>
+      </a>
+    </section>
+
+    <nav class="social-links" aria-label="Social media">
+      <a href="#">X</a>
+      <a href="#">INSTAGRAM</a>
+      <a href="#">YOUTUBE</a>
+      <a href="#">TIKTOK</a>
+      <a href="#">DISCORD</a>
+    </nav>
+  </main>
+
+  <script>
+    const menuButton = document.querySelector(".menu-button");
+    const mobileNavigation = document.querySelector(".mobile-navigation");
+    const mobileLinks = document.querySelectorAll(".mobile-navigation a");
+
+    function closeMenu() {
+      menuButton.classList.remove("active");
+      mobileNavigation.classList.remove("active");
+      document.body.classList.remove("menu-open");
+      menuButton.setAttribute("aria-expanded", "false");
+      menuButton.setAttribute("aria-label", "Open navigation");
+    }
+
+    menuButton.addEventListener("click", function () {
+      const isOpen = mobileNavigation.classList.toggle("active");
+
+      menuButton.classList.toggle("active", isOpen);
+      document.body.classList.toggle("menu-open", isOpen);
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      menuButton.setAttribute(
+        "aria-label",
+        isOpen ? "Close navigation" : "Open navigation"
+      );
+    });
+
+    mobileLinks.forEach(function (link) {
+      link.addEventListener("click", closeMenu);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        closeMenu();
+      }
+    });
+  </script>
+</body>
+</html>
